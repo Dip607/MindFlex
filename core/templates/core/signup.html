@@ -1,12 +1,31 @@
 {% extends 'core/base.html' %}
+
 {% block content %}
   <h2>Sign Up</h2>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <h4>Account Info</h4>
     {{ user_form.as_p }}
+
     <h4>Profile Info</h4>
     {{ profile_form.as_p }}
+
+    <!-- 📍 Hidden fields to store location -->
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+
     <button type="submit" class="btn btn-primary">Sign Up</button>
   </form>
+
+  <!-- 📍 Geolocation Script -->
+  <script>
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        document.getElementById('latitude').value = position.coords.latitude;
+        document.getElementById('longitude').value = position.coords.longitude;
+      }, function(error) {
+        console.warn("Geolocation permission denied or unavailable.");
+      });
+    }
+  </script>
 {% endblock %}

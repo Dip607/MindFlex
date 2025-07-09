@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2 class="mb-4 text-primary">All Users</h2>
+<div class="row">
+  {% for profile in profiles %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm p-3">
+        {% if profile.profile_pic %}
+          <img src="{{ profile.profile_pic.url }}" class="rounded-circle mx-auto d-block mb-2" width="100" height="100">
+        {% endif %}
+        <h5 class="text-center">{{ profile.user.username }}</h5>
+        <p class="text-muted text-center mb-2">{{ profile.city }} | Budget: ₹{{ profile.budget }}</p>
+        <p class="small text-center">Sleep: {{ profile.sleep_schedule }} | Cleanliness: {{ profile.cleanliness }}</p>
+      </div>
+    </div>
+  {% empty %}
+    <p>No users found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,9 +1,43 @@
 {% extends 'core/base.html' %}
+
 {% block content %}
   <h2>Edit Your Profile</h2>
+  
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+
+    <!-- 🌍 Location Button -->
+    <button type="button" class="btn btn-secondary mb-3" onclick="getLocation()">📍 Use Current Location</button>
+
+    <!-- ✅ Submit -->
     <button type="submit" class="btn btn-info">Update</button>
   </form>
+
+  <!-- 📍 Geolocation Script -->
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+
+      function success(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        document.getElementById("id_latitude").value = lat;
+        document.getElementById("id_longitude").value = lon;
+
+        // Reverse geocode using Nominatim API
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("id_city").value =
+              data.address.city || data.address.town || data.address.village || '';
+          });
+      }
+    }
+  </script>
 {% endblock %}

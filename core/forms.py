@@ -12,8 +12,8 @@ class UserRegistrationForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = [
-            'gender', 'city', 'budget', 'cleanliness',
-            'sleep_schedule', 'introvert_extrovert',
-            'bio', 'profile_pic'
-        ]
+        fields = ['city', 'latitude', 'longitude', 'gender', 'budget', 'cleanliness', 'sleep_schedule', 'introvert_extrovert', 'bio', 'profile_pic']
+        widgets = {
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+        }
