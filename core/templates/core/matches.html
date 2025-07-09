@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load custom_tags %}
 {% block extra_css %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 {% endblock %}
@@ -31,13 +31,33 @@
   <!-- 🎯 Match List -->
   <div class="list-group mb-5">
     {% for match, score in matches %}
-      <div class="list-group-item d-flex justify-content-between align-items-center">
+    <div class="list-group-item d-flex justify-content-between align-items-center">
         <div>
-          <strong>{{ match.username }}</strong><br>
-          <small>Score: {{ score }}%</small>
+          <strong>{{ match.username }}</strong>
+          {% if match.profile.last_seen|timeuntil:"now" < "5 minutes" %}
+            <span class="badge bg-success ms-2">Online</span>
+          {% else %}
+            <span class="badge bg-secondary ms-2">Offline</span>
+          {% endif %}
+          <br>
+          <small>Score: {{ score }}%</small><br>
+      
+          {% with rating=match_ratings|get_item:match.id %}
+            <small>Rating:</small>
+            {% for i in "12345" %}
+              {% if forloop.counter <= rating %}
+                ⭐
+              {% else %}
+                ☆
+              {% endif %}
+            {% endfor %}
+            <small>({{ rating|floatformat:1 }})</small>
+          {% endwith %}
+          
         </div>
         <a href="{% url 'chat' match.id %}" class="btn btn-outline-primary btn-sm">Chat</a>
       </div>
+      
     {% empty %}
       <p>No matches found yet.</p>
     {% endfor %}
@@ -49,45 +69,56 @@
 </div>
 {% endblock %}
 
+
 {% block extra_js %}
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const defaultLat = 22.5726;
+      const defaultLon = 88.3639;
 
-<script>
-  const map = L.map('map').setView([22.5726, 88.3639], 5); // Default India view
- 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-  }).addTo(map);
+      const userLat = parseFloat("{{ user_lat|default:22.5726 }}") || defaultLat;
+      const userLon = parseFloat("{{ user_lon|default:88.3639 }}") || defaultLon;
 
-  const bounds = [];
+      const map = L.map('map').setView([userLat, userLon], 5);
 
-  {% for match in match_coords %}
-    const popupContent = `
-      <div class="text-center" style="min-width:180px;">
-        {% if match.profile_pic %}
-          <img src="{{ match.profile_pic }}" alt="Profile Picture" class="rounded-circle mb-2" width="70" height="70"><br>
-        {% else %}
-          <div class="mb-2"><i>No Image</i></div>
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      }).addTo(map);
+
+      const bounds = [];
+
+      {% for match in match_coords %}
+        {% if match.lat and match.lon %}
+        const popupContent_{{ forloop.counter }} = `
+          <div class="text-center" style="min-width:180px;">
+            {% if match.profile_pic %}
+              <img src="{{ match.profile_pic }}" class="rounded-circle mb-2" width="70" height="70"><br>
+            {% endif %}
+            <strong>{{ match.user.username }}</strong><br>
+            <small>{{ match.city }}</small><br>
+            <small>Score: {{ match.score }}%</small><br>
+            <a href="{% url 'chat' match.user.id %}" class="btn btn-sm btn-outline-primary mt-2">Chat</a>
+          </div>
+        `;
+
+        const marker_{{ forloop.counter }} = L.marker([{{ match.lat }}, {{ match.lon }}])
+          .addTo(map)
+          .bindPopup(popupContent_{{ forloop.counter }});
+
+        bounds.push([{{ match.lat }}, {{ match.lon }}]);
         {% endif %}
-        <strong>{{ match.user.username }}</strong><br>
-        <small>{{ match.city }}</small><br>
-        <small>Score: {{ match.score }}%</small><br>
-        <a href="{% url 'chat' match.user.id %}" class="btn btn-sm btn-outline-primary mt-2">Chat</a>
-      </div>
-    `;
+      {% endfor %}
 
-    const marker = L.marker([{{ match.lat }}, {{ match.lon }}])
-      .addTo(map)
-      .bindPopup(popupContent);
-
-    bounds.push([{{ match.lat }}, {{ match.lon }}]);
-  {% endfor %}
-  
-  if (bounds.length > 0) {
-    map.fitBounds(bounds);
-  }
-  
-</script>
+      if (bounds.length > 0) {
+        map.fitBounds(bounds);
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 400);
+      } else {
+        console.warn("No valid coordinates for any match.");
+      }
+    });
+  </script>
 {% endblock %}
-

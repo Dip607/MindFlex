@@ -6,7 +6,8 @@ from .forms import UserRegistrationForm, ProfileForm
 from .models import Profile
 from django.contrib import messages
 from .utils import find_top_matches_for_user, get_coordinates
-
+from django.db.models import Avg
+from .models import Feedback
 
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -16,6 +17,23 @@ from .utils import find_top_matches_for_user
 
 from .models import Message
 from django.contrib.auth.models import User
+
+@login_required
+def profile_detail_view(request, user_id):
+    from django.shortcuts import get_object_or_404
+    from .models import Profile
+    from django.contrib.auth.models import User
+    from django.db.models import Avg
+
+    user_obj = get_object_or_404(User, id=user_id)
+    profile = user_obj.profile
+    avg_rating = user_obj.received_feedback.aggregate(Avg('rating'))['rating__avg'] if hasattr(user_obj, 'received_feedback') else None
+
+    return render(request, 'core/profile_detail.html', {
+        'profile': profile,
+        'avg_rating': avg_rating,
+    })
+    
 @login_required  # Optional: remove if public
 def all_users_view(request):
     profiles = Profile.objects.select_related('user').all()
@@ -115,42 +133,64 @@ def edit_profile_view(request):
         form = ProfileForm(instance=profile)
     return render(request, 'core/edit_profile.html', {'form': form})
 
+from django.db.models import Avg
+from .models import Feedback  # Assuming you have a Feedback model
+from geopy.geocoders import Nominatim
+
+def geocode_city(city):
+    geolocator = Nominatim(user_agent="roommate-app")
+    location = geolocator.geocode(city)
+    if location:
+        return location.latitude, location.longitude
+    return None, None
+
 @login_required
 def matches(request):
     user = request.user
-    matches = find_top_matches_for_user(user)
+    matches = find_top_matches_for_user(user)  # All matches with scores
 
+    # Filter form
     gender = request.GET.get('gender')
     city = request.GET.get('city')
     max_budget = request.GET.get('budget')
+    user_lat = float(user.profile.latitude or 22.5726)
+    user_lon = float(user.profile.longitude or 88.3639)
 
-    # ✅ Apply filters
-    if gender:
-        matches = [m for m in matches if m[0].profile.gender == gender]
-    if city:
-        matches = [m for m in matches if city.lower() in m[0].profile.city.lower()]
-    if max_budget:
-        matches = [m for m in matches if m[0].profile.budget <= int(max_budget)]
-
-    # ✅ Build marker data
-    match_coords = []
+    # 💡 Prepare filtered match list for display
+    filtered_matches = []
     for match, score in matches:
-        profile = match.profile  # <-- FIXED: define p properly here
-        if profile.latitude and profile.longitude:
+        profile = match.profile
+        if gender and profile.gender != gender:
+            continue
+        if city and city.lower() not in profile.city.lower():
+            continue
+        if max_budget:
+            try:
+                if profile.budget > int(max_budget):
+                    continue
+            except ValueError:
+                pass
+        filtered_matches.append((match, score))
+
+    # ✅ Show ALL markers on map, not just filtered ones
+    match_coords = []
+    for match, score in matches:  # <--- Use full list here, not filtered_matches
+        p = match.profile
+        if p.latitude and p.longitude:
             match_coords.append({
                 'user': match,
                 'score': score,
-                'city': profile.city,
-                'lat': profile.latitude,
-                'lon': profile.longitude,
-                'profile_pic': profile.profile_pic.url if profile.profile_pic else None,
+                'city': p.city,
+                'lat': p.latitude,
+                'lon': p.longitude,
+                'profile_pic': p.profile_pic.url if p.profile_pic else None,
             })
 
     context = {
-        'matches': matches,
-        'match_coords': match_coords,
-        'user_lat': user.profile.latitude,
-        'user_lon': user.profile.longitude,
+        'matches': filtered_matches,  # only filtered list shown
+        'match_coords': match_coords,  # all users shown on map
+        'user_lat': user_lat,
+        'user_lon': user_lon,
     }
 
     return render(request, 'core/matches.html', context)

@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ profile.user.username }}'s Profile</h2>
+  <div class="card p-3 shadow-sm">
+    {% if profile.profile_pic %}
+      <img src="{{ profile.profile_pic.url }}" width="100" height="100" class="rounded mb-3">
+    {% endif %}
+
+    <p><strong>City:</strong> {{ profile.city }}</p>
+    <p><strong>Budget:</strong> ₹{{ profile.budget }}</p>
+    <p><strong>Gender:</strong> {{ profile.gender }}</p>
+    <p><strong>Cleanliness:</strong> {{ profile.cleanliness }}/10</p>
+    <p><strong>Sleep Schedule:</strong> {{ profile.sleep_schedule }}</p>
+    <p><strong>Introvert/Extrovert:</strong> {{ profile.introvert_extrovert }}</p>
+    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+    
+    {% if avg_rating %}
+      <p><strong>⭐ Average Rating:</strong> {{ avg_rating|floatformat:1 }}/5</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

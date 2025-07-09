@@ -4,6 +4,8 @@ from .views import home, signup_view, login_view, edit_profile_view, matches
 from .views import custom_logout_view
 from .views import chat_view
 from .views import all_users_view
+from .views import profile_detail_view
+
 urlpatterns = [
     path('', home, name='home'),
     path('signup/', signup_view, name='signup'),
@@ -13,4 +15,6 @@ urlpatterns = [
     path('chat/<int:user_id>/', chat_view, name='chat'),
     path('edit-profile/', edit_profile_view, name='edit-profile'),
     path('matches/', matches, name='matches'),
+    
+    path('profile/<int:user_id>/', profile_detail_view, name='profile-detail'),
 ]
