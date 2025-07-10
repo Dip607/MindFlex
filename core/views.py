@@ -9,7 +9,7 @@ from django.contrib import messages
 from .utils import find_top_matches_for_user, get_coordinates
 from django.db.models import Avg
 from .models import Feedback
-
+from django.utils.timezone import now
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -192,6 +192,8 @@ def matches(request):
         'match_coords': match_coords,  # all users shown on map
         'user_lat': user_lat,
         'user_lon': user_lon,
+        'today': now(),
+        
     }
 
     return render(request, 'core/matches.html', context)

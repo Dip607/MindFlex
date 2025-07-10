@@ -402,67 +402,51 @@
     </div>
 
     <!-- Right Column: Matches -->
-    <div class="matches-column">
-      <div class="matches-section">
-        {% for match, score in matches %}
-        <div class="match-card">
-          <div class="d-flex align-items-center">
-            <div class="match-avatar">
-              {{ match.username|first|upper }}
-            </div>
-            <div class="match-info">
-              <div class="match-name">
-                {{ match.username }}
-                {% if match.profile.last_seen|timeuntil:"now" < "5 minutes" %}
-                  <span class="status-badge online-badge">
-                    <i class="fas fa-circle"></i> Online
-                  </span>
-                {% else %}
-                  <span class="status-badge offline-badge">
-                    <i class="far fa-circle"></i> Offline
-                  </span>
-                {% endif %}
-              </div>
+    <!-- Right Column: Matches -->
+<div class="matches-column">
+  <div class="matches-section">
+    {% for match, score in matches %}
+    <div class="match-card">
+      <div class="d-flex align-items-center">
+        <div class="match-avatar">
+          {{ match.username|first|upper }}
+        </div>
+        <div class="match-info">
+          <div class="match-name">
+            {{ match.username }}
+            {% with last_seen=match.profile.last_seen %}
               
-              <div class="match-score">
-                <i class="fas fa-percentage"></i> {{ score }}% Match
-              </div>
+            {% endwith %}
+          </div>
+          
+          <div class="match-score">
+            <i class="fas fa-percentage"></i> {{ score }}% Match
+          </div>
 
-              {% with rating=match_ratings|get_item:match.id %}
-                <div class="star-rating">
-                  {% for i in "12345" %}
-                    {% if forloop.counter <= rating %}
-                      <i class="fas fa-star"></i>
-                    {% else %}
-                      <i class="fas fa-star empty"></i>
-                    {% endif %}
-                  {% endfor %}
-                  <span class="ms-1 text-muted">({{ rating|floatformat:1 }})</span>
-                </div>
-              {% endwith %}
 
-              <div class="match-meta">
-                <span><i class="fas fa-clock"></i> Last seen {{ match.profile.last_seen|timesince }} ago</span>
-                <span><i class="fas fa-map-marker-alt"></i> {{ match.profile.city|default:"Location not specified" }}</span>
-              </div>
-            </div>
-            <div class="ms-3">
-              <a href="{% url 'chat' match.id %}" class="chat-btn">
-                <i class="fas fa-comment"></i> Chat Now
-              </a>
-            </div>
+          <div class="match-meta">
+            
+            <span><i class="fas fa-map-marker-alt"></i> {{ match.profile.city|default:"Location not specified" }}</span>
           </div>
         </div>
-        {% empty %}
-          <div class="no-matches">
-            <i class="fas fa-search"></i>
-            <h4>No matches found</h4>
-            <p>Try adjusting your filters to find more compatible roommates in your area.</p>
-          </div>
-        {% endfor %}
+        <div class="ms-3">
+          <a href="{% url 'chat' match.id %}" class="chat-btn">
+            <i class="fas fa-comment"></i> Chat Now
+          </a>
+        </div>
       </div>
     </div>
+    {% empty %}
+      <div class="no-matches">
+        <i class="fas fa-search"></i>
+        <h4>No matches found</h4>
+        <p>Try adjusting your filters to find more compatible roommates in your area.</p>
+      </div>
+    {% endfor %}
   </div>
+</div>
+
+</div>
 </div>
 {% endblock %}
 
