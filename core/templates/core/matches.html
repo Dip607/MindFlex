@@ -456,28 +456,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=";
-
+  const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=";  // Replace with your real key
   let userMarker = null;
   let routeLines = [];
 
   async function drawRouteToMatches(userLat, userLon, matchCoords, map) {
-    // Clear existing routes
     routeLines.forEach(line => map.removeLayer(line));
     routeLines = [];
-
-    // Add loading indicator
-    const loadingToast = document.createElement('div');
-    loadingToast.className = 'toast-container position-fixed top-0 end-0 p-3';
-    loadingToast.innerHTML = `
-      <div class="toast show" role="alert">
-        <div class="toast-body">
-          <i class="fas fa-spinner fa-spin me-2"></i>
-          Calculating routes to matches...
-        </div>
-      </div>
-    `;
-    document.body.appendChild(loadingToast);
 
     for (const coord of matchCoords) {
       try {
@@ -498,41 +483,30 @@
 
         const data = await response.json();
         const routeCoords = data.features[0].geometry.coordinates.map(pair => [pair[1], pair[0]]);
-        
+
         const polyline = L.polyline(routeCoords, {
-          color: '#667eea',
+          color: '#ff4d4d',   // Red line
           weight: 4,
           opacity: 0.8,
           dashArray: '5, 10'
         }).addTo(map);
 
         routeLines.push(polyline);
+
       } catch (err) {
         console.error(`❌ Route error for ${coord.name}:`, err);
       }
     }
-
-    // Remove loading indicator
-    setTimeout(() => {
-      document.body.removeChild(loadingToast);
-    }, 2000);
   }
 
   document.addEventListener("DOMContentLoaded", function () {
     const defaultLat = 22.5726;
     const defaultLon = 88.3639;
+    const isMobile = window.innerWidth <= 768;
 
-    // Initialize map with custom styling
-    const map = L.map('map', {
-      zoomControl: false
-    }).setView([defaultLat, defaultLon], 5);
+    const map = L.map('map', { zoomControl: false }).setView([defaultLat, defaultLon], 5);
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Add custom zoom control
-    L.control.zoom({
-      position: 'topright'
-    }).addTo(map);
-
-    // Custom tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
       maxZoom: 18
@@ -544,13 +518,27 @@
       {% endfor %}
     ];
 
-    // Add match markers with custom styling
     matchCoords.forEach(coord => {
+      const markerSize = isMobile ? 24 : 30;
+      const fontSize = isMobile ? '0.75rem' : '1rem';
+
       const customIcon = L.divIcon({
-        html: `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">${coord.name.charAt(0).toUpperCase()}</div>`,
+        html: `<div style="
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          width: ${markerSize}px;
+          height: ${markerSize}px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: ${fontSize};
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        ">${coord.name.charAt(0).toUpperCase()}</div>`,
         className: 'custom-marker',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        iconSize: [markerSize, markerSize],
+        iconAnchor: [markerSize / 2, markerSize / 2]
       });
 
       L.marker([coord.lat, coord.lon], { icon: customIcon })
@@ -563,18 +551,31 @@
         `);
     });
 
-    // Get user location with enhanced UX
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async function (position) {
         const userLat = position.coords.latitude;
         const userLon = position.coords.longitude;
 
-        // Custom user marker
+        const userSize = isMobile ? 32 : 40;
+
         const userIcon = L.divIcon({
-          html: `<div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4); border: 3px solid white;"><i class="fas fa-user"></i></div>`,
+          html: `<div style="
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            width: ${userSize}px;
+            height: ${userSize}px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: ${isMobile ? '1rem' : '1.25rem'};
+            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
+            border: 3px solid white;
+          "><i class="fas fa-user"></i></div>`,
           className: 'user-marker',
-          iconSize: [40, 40],
-          iconAnchor: [20, 20]
+          iconSize: [userSize, userSize],
+          iconAnchor: [userSize / 2, userSize / 2]
         });
 
         userMarker = L.marker([userLat, userLon], { icon: userIcon })
@@ -586,52 +587,20 @@
             </div>
           `);
 
-        // Fit bounds to show all markers
         const allPoints = matchCoords.map(coord => [coord.lat, coord.lon]);
         allPoints.push([userLat, userLon]);
-        if (allPoints.length > 1) {
-          map.fitBounds(allPoints, { padding: [20, 20] });
-        }
 
-        // Draw routes
+        map.options.maxZoom = isMobile ? 13 : 18;
+        const padding = isMobile ? [10, 10] : [40, 40];
+        map.fitBounds(allPoints, { padding });
+
         await drawRouteToMatches(userLat, userLon, matchCoords, map);
       }, function (error) {
         console.error("❌ Geolocation error:", error);
-        // Show user-friendly error message
-        const errorToast = document.createElement('div');
-        errorToast.className = 'toast-container position-fixed top-0 end-0 p-3';
-        errorToast.innerHTML = `
-          <div class="toast show" role="alert">
-            <div class="toast-body bg-warning">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              Unable to get your location. Please enable location services.
-            </div>
-          </div>
-        `;
-        document.body.appendChild(errorToast);
-        setTimeout(() => {
-          if (document.body.contains(errorToast)) {
-            document.body.removeChild(errorToast);
-          }
-        }, 5000);
       });
     } else {
       console.error("Geolocation not supported");
     }
-  });
-
-  // Add smooth scrolling for better UX
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
   });
 </script>
 {% endblock %}
