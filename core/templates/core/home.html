@@ -1,6 +1,262 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
+<style>
+  :root {
+    --primary-blue: #0ea5e9;
+    --secondary-blue: #3b82f6;
+    --primary-green: #10b981;
+    --secondary-green: #059669;
+    --accent-teal: #14b8a6;
+    --light-bg: #f0f9ff;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+    --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #14b8a6 100%);
+  }
+
+  body {
+    background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+  }
+
+  .bg-light {
+    background: white !important;
+    border-radius: 20px !important;
+    box-shadow: var(--card-shadow) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bg-light::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    opacity: 0.05;
+    z-index: 1;
+  }
+
+  .bg-light > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .text-primary {
+    background: var(--gradient-primary) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+
+  .btn-primary {
+    background: var(--gradient-primary) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4) !important;
+  }
+
+  .btn-outline-primary {
+    background: transparent !important;
+    color: var(--primary-blue) !important;
+    border: 2px solid var(--primary-blue) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-outline-primary:hover {
+    background: var(--primary-blue) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4) !important;
+  }
+
+  .btn-outline-secondary {
+    background: transparent !important;
+    color: var(--primary-green) !important;
+    border: 2px solid var(--primary-green) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-outline-secondary:hover {
+    background: var(--primary-green) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4) !important;
+  }
+
+  .alert-success {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .card {
+    background: white !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(14, 165, 233, 0.1) !important;
+    box-shadow: var(--card-shadow) !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-secondary);
+  }
+
+  .card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .card h4 {
+    color: var(--secondary-blue) !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .card p {
+    color: #64748b !important;
+    line-height: 1.6 !important;
+  }
+
+  .display-5 {
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .lead {
+    font-size: 1.25rem !important;
+    line-height: 1.6 !important;
+    color: #64748b !important;
+  }
+
+  /* Add floating animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .card:nth-child(1) {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+
+  .card:nth-child(2) {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .card:nth-child(3) {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+
+  /* Add subtle background pattern */
+  .container {
+    position: relative;
+  }
+
+  .container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(14,165,233,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Modern footer */
+  .mt-5:last-child {
+    margin-top: 5rem !important;
+    padding: 3rem 0 2rem !important;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    color: white !important;
+    border-radius: 20px 20px 0 0 !important;
+    margin-left: -15px !important;
+    margin-right: -15px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  /* Add this after the existing styles */
+  .footer-section {
+    margin-top: 5rem;
+    padding: 3rem 0 2rem;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .footer-content {
+    text-align: center;
+  }
+
+  .footer-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-text {
+    color: #94a3b8;
+    margin-bottom: 2rem;
+  }
+
+  .footer-credit {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #64748b;
+  }
+
+  .developer-name {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+  }
+</style>
+
 <div class="bg-light rounded p-5 shadow text-center">
   <h1 class="display-5 fw-bold text-primary mb-3">🏠 Smart Roommate Finder</h1>
   <p class="lead text-muted mb-4">
@@ -44,6 +300,18 @@
     <div class="card p-4 shadow-sm">
       <h4>📊 Profile Scoring</h4>
       <p>Trust and transparency with compatibility scoring.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Footer Section -->
+<div class="footer-section">
+  <div class="footer-content">
+    <h3 class="footer-title">Smart Roommate Finder</h3>
+    <p class="footer-text">Making roommate finding simple, safe, and smart with AI-powered matching.</p>
+    <div class="footer-credit">
+      <p>&copy; 2024 Smart Roommate Finder. All rights reserved.</p>
+      <p>Developed with ❤️ by <span class="developer-name">Dipan</span></p>
     </div>
   </div>
 </div>

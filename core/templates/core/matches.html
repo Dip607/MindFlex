@@ -41,7 +41,7 @@
           {% endif %}
           <br>
           <small>Score: {{ score }}%</small><br>
-      
+
           {% with rating=match_ratings|get_item:match.id %}
             <small>Rating:</small>
             {% for i in "12345" %}
@@ -53,11 +53,9 @@
             {% endfor %}
             <small>({{ rating|floatformat:1 }})</small>
           {% endwith %}
-          
         </div>
         <a href="{% url 'chat' match.id %}" class="btn btn-outline-primary btn-sm">Chat</a>
-      </div>
-      
+    </div>
     {% empty %}
       <p>No matches found yet.</p>
     {% endfor %}
@@ -68,57 +66,80 @@
   <div id="map" style="height: 400px;" class="rounded shadow mb-4"></div>
 </div>
 {% endblock %}
-
-
 {% block extra_js %}
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const defaultLat = 22.5726;
-      const defaultLon = 88.3639;
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const defaultLat = 22.5726;
+  const defaultLon = 88.3639;
 
-      const userLat = parseFloat("{{ user_lat|default:22.5726 }}") || defaultLat;
-      const userLon = parseFloat("{{ user_lon|default:88.3639 }}") || defaultLon;
+  const userLat = parseFloat("{{ user_lat|default:22.5726 }}") || defaultLat;
+  const userLon = parseFloat("{{ user_lon|default:88.3639 }}") || defaultLon;
 
-      const map = L.map('map').setView([userLat, userLon], 5);
+  const map = L.map('map').setView([userLat, userLon], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>',
+  }).addTo(map);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-      }).addTo(map);
+  const bounds = [];
 
-      const bounds = [];
+  {% for match in match_coords %}
+    {% if match.lat and match.lon %}
+      let lat_{{ forloop.counter }} = {{ match.lat }};
+      let lon_{{ forloop.counter }} = {{ match.lon }};
+      let popupContent_{{ forloop.counter }} = `
+        <div class="text-center" style="min-width:180px;">
+          {% if match.profile_pic %}
+            <img src="{{ match.profile_pic }}" class="rounded-circle mb-2" width="70" height="70"><br>
+          {% endif %}
+          <strong>{{ match.user.username }}</strong><br>
+          <small>{{ match.city }}</small><br>
+          <small>Score: {{ match.score }}%</small><br>
+          <a href="{% url 'chat' match.user.id %}" class="btn btn-sm btn-outline-primary mt-2">Chat</a>
+        </div>
+      `;
 
-      {% for match in match_coords %}
-        {% if match.lat and match.lon %}
-        const popupContent_{{ forloop.counter }} = `
-          <div class="text-center" style="min-width:180px;">
-            {% if match.profile_pic %}
-              <img src="{{ match.profile_pic }}" class="rounded-circle mb-2" width="70" height="70"><br>
-            {% endif %}
-            <strong>{{ match.user.username }}</strong><br>
-            <small>{{ match.city }}</small><br>
-            <small>Score: {{ match.score }}%</small><br>
-            <a href="{% url 'chat' match.user.id %}" class="btn btn-sm btn-outline-primary mt-2">Chat</a>
-          </div>
-        `;
+      L.marker([lat_{{ forloop.counter }}, lon_{{ forloop.counter }}])
+        .addTo(map)
+        .bindPopup(popupContent_{{ forloop.counter }});
+      
+      bounds.push([lat_{{ forloop.counter }}, lon_{{ forloop.counter }}]);
 
-        const marker_{{ forloop.counter }} = L.marker([{{ match.lat }}, {{ match.lon }}])
-          .addTo(map)
-          .bindPopup(popupContent_{{ forloop.counter }});
+      // 🛣 Draw road route using OpenRouteService (replace API key)
+      axios.post('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+        coordinates: [[userLon, userLat], [lon_{{ forloop.counter }}, lat_{{ forloop.counter }}]]
+      }, {
+        headers: {
+          'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=',
+          'Content-Type': 'application/json'
+        }
+      }).then(response => {
+        L.geoJSON(response.data, {
+          style: { color: 'red', weight: 3 }
+        }).addTo(map);
+      }).catch(err => {
+        console.warn("Route error:", err);
+      });
+    {% endif %}
+  {% endfor %}
 
-        bounds.push([{{ match.lat }}, {{ match.lon }}]);
-        {% endif %}
-      {% endfor %}
+  // Add user's own location marker
+  L.marker([userLat, userLon], {
+    icon: L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    })
+  }).addTo(map).bindPopup(`<strong>You are here</strong><br><small>(Your location)</small>`);
 
-      if (bounds.length > 0) {
-        map.fitBounds(bounds);
-        setTimeout(() => {
-          map.invalidateSize();
-        }, 400);
-      } else {
-        console.warn("No valid coordinates for any match.");
-      }
-    });
-  </script>
+  if (bounds.length > 0) {
+    map.fitBounds(bounds);
+    setTimeout(() => map.invalidateSize(), 400);
+  }
+});
+</script>
 {% endblock %}

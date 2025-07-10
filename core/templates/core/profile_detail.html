@@ -1,24 +1,387 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>{{ profile.user.username }}'s Profile</h2>
-  <div class="card p-3 shadow-sm">
-    {% if profile.profile_pic %}
-      <img src="{{ profile.profile_pic.url }}" width="100" height="100" class="rounded mb-3">
-    {% endif %}
+<style>
+  :root {
+    --primary-color: #3b82f6;
+    --secondary-color: #1e40af;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-light: #9ca3af;
+    --background: #f8fafc;
+    --card-background: #ffffff;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
 
-    <p><strong>City:</strong> {{ profile.city }}</p>
-    <p><strong>Budget:</strong> ₹{{ profile.budget }}</p>
-    <p><strong>Gender:</strong> {{ profile.gender }}</p>
-    <p><strong>Cleanliness:</strong> {{ profile.cleanliness }}/10</p>
-    <p><strong>Sleep Schedule:</strong> {{ profile.sleep_schedule }}</p>
-    <p><strong>Introvert/Extrovert:</strong> {{ profile.introvert_extrovert }}</p>
-    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+  .modern-profile-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .profile-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+  }
+
+  .profile-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-card {
+    background: var(--card-background);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--success-color));
+  }
+
+  .profile-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-color: var(--primary-color);
+  }
+
+  .profile-avatar-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .profile-avatar:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+  }
+
+  .avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 3rem;
+    color: white;
+    font-weight: 600;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .profile-field {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .profile-field:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .field-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    vertical-align: middle;
+    font-size: 1.2rem;
+  }
+
+  .field-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .field-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+  }
+
+  .budget-value {
+    color: var(--success-color);
+    font-weight: 700;
+  }
+
+  .cleanliness-bar {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: 1rem;
+    flex: 1;
+  }
+
+  .cleanliness-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-color), var(--accent-color));
+    transition: width 0.5s ease;
+  }
+
+  .bio-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+  }
+
+  .bio-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .bio-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-style: italic;
+  }
+
+  .rating-section {
+    background: linear-gradient(135deg, var(--accent-color), #f97316);
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .rating-stars {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .rating-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .rating-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .gender-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .gender-male {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+  }
+
+  .gender-female {
+    background: linear-gradient(135deg, #ec4899, #be185d);
+    color: white;
+  }
+
+  .gender-other {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+  }
+
+  .schedule-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+
+  .personality-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .modern-profile-container {
+      padding: 1rem;
+    }
     
-    {% if avg_rating %}
-      <p><strong>⭐ Average Rating:</strong> {{ avg_rating|floatformat:1 }}/5</p>
-    {% endif %}
+    .profile-card {
+      padding: 2rem;
+    }
+    
+    .profile-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-header h2 {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<div class="modern-profile-container">
+  <div class="profile-wrapper">
+    <div class="profile-header">
+      <h2>{{ profile.user.username }}'s Profile</h2>
+    </div>
+    
+    <div class="profile-card">
+      <div class="profile-avatar-section">
+        {% if profile.profile_pic %}
+          <img src="{{ profile.profile_pic.url }}" alt="{{ profile.user.username }}" class="profile-avatar">
+        {% else %}
+          <div class="avatar-placeholder">
+            {{ profile.user.username|first|upper }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="profile-grid">
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">📍</span>Location
+          </span>
+          <div class="field-value">{{ profile.city }}</div>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">💰</span>Budget
+          </span>
+          <div class="field-value budget-value">₹{{ profile.budget|floatformat:0 }}</div>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">👤</span>Gender
+          </span>
+          <div class="field-value">
+            <span class="gender-badge gender-{{ profile.gender|lower }}">{{ profile.gender }}</span>
+          </div>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">✨</span>Cleanliness
+          </span>
+          <div class="field-value">
+            {{ profile.cleanliness }}/10
+            <div class="cleanliness-bar">
+              <div class="cleanliness-fill" style="width: {{ profile.cleanliness }}0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">🌙</span>Sleep Schedule
+          </span>
+          <div class="field-value">
+            <span class="schedule-badge">{{ profile.sleep_schedule }}</span>
+          </div>
+        </div>
+
+        <div class="profile-field">
+          <span class="field-label">
+            <span class="field-icon">👥</span>Personality
+          </span>
+          <div class="field-value">
+            <span class="personality-badge">{{ profile.introvert_extrovert }}</span>
+          </div>
+        </div>
+      </div>
+
+      {% if profile.bio %}
+        <div class="bio-section">
+          <div class="bio-label">About Me</div>
+          <div class="bio-text">{{ profile.bio }}</div>
+        </div>
+      {% endif %}
+
+      {% if avg_rating %}
+        <div class="rating-section">
+          <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+          <div class="rating-value">{{ avg_rating|floatformat:1 }}/5</div>
+          <div class="rating-label">Average Rating</div>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

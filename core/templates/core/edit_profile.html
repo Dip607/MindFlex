@@ -1,43 +1,500 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-  <h2>Edit Your Profile</h2>
-  
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+<style>
+  :root {
+    --primary-color: #3b82f6;
+    --secondary-color: #1e40af;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-light: #9ca3af;
+    --background: #f8fafc;
+    --card-background: #ffffff;
+    --border-color: #e5e7eb;
+    --border-focus: #3b82f6;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
 
-    <!-- 🌍 Location Button -->
-    <button type="button" class="btn btn-secondary mb-3" onclick="getLocation()">📍 Use Current Location</button>
+  .modern-edit-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
 
-    <!-- ✅ Submit -->
-    <button type="submit" class="btn btn-info">Update</button>
-  </form>
+  .edit-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+  }
 
-  <!-- 📍 Geolocation Script -->
-  <script>
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(success);
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
+  .edit-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+  }
 
-      function success(position) {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+  .edit-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
 
-        document.getElementById("id_latitude").value = lat;
-        document.getElementById("id_longitude").value = lon;
+  .edit-card {
+    background: var(--card-background);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
 
-        // Reverse geocode using Nominatim API
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById("id_city").value =
-              data.address.city || data.address.town || data.address.village || '';
-          });
-      }
+  .edit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--success-color));
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--card-background);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .form-control:hover {
+    border-color: var(--text-secondary);
+  }
+
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+
+  .form-file {
+    padding: 0.5rem;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+  }
+
+  .form-file:hover {
+    border-color: var(--primary-color);
+    background: #f1f5f9;
+  }
+
+  .location-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent-color), #f97316);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .location-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #f97316, #ea580c);
+  }
+
+  .location-button:active {
+    transform: translateY(0);
+  }
+
+  .submit-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--secondary-color), #1e3a8a);
+  }
+
+  .submit-button:active {
+    transform: translateY(0);
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-help-text {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  .loading-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
     }
-  </script>
+  }
+
+  .location-button.loading .loading-spinner {
+    display: inline-block;
+  }
+
+  .location-button.loading .button-text {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .modern-edit-container {
+      padding: 1rem;
+    }
+    
+    .edit-card {
+      padding: 2rem;
+    }
+    
+    .edit-header h2 {
+      font-size: 2rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .location-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="modern-edit-container">
+  <div class="edit-wrapper">
+    <div class="edit-header">
+      <h2>✏️ Edit Your Profile</h2>
+    </div>
+    
+    <div class="edit-card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Profile Picture -->
+        <div class="form-group">
+          <label class="form-label">📸 Profile Picture</label>
+          {{ form.profile_pic }}
+          <div class="form-help-text">Upload a clear photo of yourself (optional)</div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">🏙️ City</label>
+            {{ form.city }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">💰 Budget</label>
+            {{ form.budget }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">👤 Gender</label>
+            {{ form.gender }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">✨ Cleanliness (1-10)</label>
+            {{ form.cleanliness }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">🌙 Sleep Schedule</label>
+            {{ form.sleep_schedule }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">👥 Personality</label>
+            {{ form.introvert_extrovert }}
+          </div>
+        </div>
+
+        <!-- Hidden Location Fields -->
+        <div style="display: none;">
+          {{ form.latitude }}
+          {{ form.longitude }}
+        </div>
+
+        <!-- Bio -->
+        <div class="form-group">
+          <label class="form-label">📝 About You</label>
+          {{ form.bio }}
+          <div class="form-help-text">Tell others about yourself, your interests, and what you're looking for in a roommate</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+          <button type="button" class="location-button" onclick="getLocation()">
+            <span class="button-text">📍 Use Current Location</span>
+            <div class="loading-spinner"></div>
+          </button>
+        </div>
+
+        <button type="submit" class="submit-button">
+          💾 Update Profile
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 📍 Enhanced Geolocation Script -->
+<script>
+  function getLocation() {
+    const button = document.querySelector('.location-button');
+    
+    if (navigator.geolocation) {
+      // Show loading state
+      button.classList.add('loading');
+      button.disabled = true;
+      
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      });
+    } else {
+      showNotification("❌ Geolocation is not supported by this browser.", "error");
+    }
+
+    function success(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      document.getElementById("id_latitude").value = lat;
+      document.getElementById("id_longitude").value = lon;
+
+      // Reverse geocode using Nominatim API
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+        .then(response => response.json())
+        .then(data => {
+          const city = data.address.city || data.address.town || data.address.village || data.address.suburb || '';
+          document.getElementById("id_city").value = city;
+          
+          // Reset button state
+          button.classList.remove('loading');
+          button.disabled = false;
+          
+          if (city) {
+            showNotification(`📍 Location updated: ${city}`, "success");
+          } else {
+            showNotification("📍 Location detected but city name not found", "warning");
+          }
+        })
+        .catch(err => {
+          console.error('Geocoding error:', err);
+          button.classList.remove('loading');
+          button.disabled = false;
+          showNotification("📍 Location detected but couldn't get city name", "warning");
+        });
+    }
+
+    function error(err) {
+      button.classList.remove('loading');
+      button.disabled = false;
+      
+      let message = "❌ Unable to get your location. ";
+      switch(err.code) {
+        case err.PERMISSION_DENIED:
+          message += "Please allow location access.";
+          break;
+        case err.POSITION_UNAVAILABLE:
+          message += "Location information unavailable.";
+          break;
+        case err.TIMEOUT:
+          message += "Location request timed out.";
+          break;
+        default:
+          message += "Unknown error occurred.";
+          break;
+      }
+      showNotification(message, "error");
+    }
+  }
+
+  function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    `;
+    
+    // Set background color based on type
+    switch(type) {
+      case 'success':
+        notification.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        break;
+      case 'error':
+        notification.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        break;
+      case 'warning':
+        notification.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+        break;
+      default:
+        notification.style.background = 'linear-gradient(135deg, #3b82f6, #1e40af)';
+    }
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 4 seconds
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 4000);
+  }
+
+  // Style form fields dynamically
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add classes to form fields
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      if (input.type === 'file') {
+        input.classList.add('form-file');
+      } else if (input.tagName === 'SELECT') {
+        input.classList.add('form-control', 'form-select');
+      } else if (input.tagName === 'TEXTAREA') {
+        input.classList.add('form-control', 'form-textarea');
+      } else if (input.type !== 'hidden') {
+        input.classList.add('form-control');
+      }
+    });
+
+    // Wrap form fields in form-group if not already wrapped
+    inputs.forEach(input => {
+      if (input.type !== 'hidden' && !input.closest('.form-group')) {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('form-group');
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+      }
+    });
+  });
+</script>
 {% endblock %}
