@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: rommieai
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:$PORT"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        value: "django-insecure-)51m3mem$rlg4iydv)!2xjt!i9a7%wf_#3*+v1=6v288mt&hh-""
