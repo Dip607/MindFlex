@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, ProfileForm
 from .models import Profile
+from django.conf import settings
 from django.contrib import messages
 from .utils import find_top_matches_for_user, get_coordinates
 from django.db.models import Avg

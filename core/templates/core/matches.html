@@ -2,144 +2,652 @@
 {% load custom_tags %}
 {% block extra_css %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      --hover-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+
+    .hero-section {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+      border-radius: 0 0 30px 30px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .map-column {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .matches-column {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .filter-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      border: none;
+      margin-bottom: 2rem;
+      width: 100%;
+    }
+
+    .filter-title {
+      color: #4a5568;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modern-input {
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+    }
+
+    .modern-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    .modern-select {
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      cursor: pointer;
+    }
+
+    .modern-select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    .filter-btn {
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 15px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      color: white;
+    }
+
+    .match-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--card-shadow);
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .match-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--hover-shadow);
+    }
+
+    .match-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+    }
+
+    .match-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--success-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+
+    .match-info {
+      flex: 1;
+    }
+
+    .match-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .online-badge {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+
+    .offline-badge {
+      background: #e2e8f0;
+      color: #718096;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .match-score {
+      background: var(--secondary-gradient);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    .star-rating {
+      color: #fbbf24;
+      margin: 0.5rem 0;
+    }
+
+    .star-rating .empty {
+      color: #e5e7eb;
+    }
+
+    .chat-btn {
+      background: var(--success-gradient);
+      border: none;
+      border-radius: 15px;
+      padding: 0.75rem 1.5rem;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+
+    .map-section {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .map-title {
+      color: #4a5568;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #map {
+      height: 500px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .no-matches {
+      text-align: center;
+      padding: 3rem;
+      color: #718096;
+      font-size: 1.1rem;
+    }
+
+    .no-matches i {
+      font-size: 3rem;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+    }
+
+    .container-custom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .match-meta {
+      display: flex;
+      gap: 1rem;
+      color: #718096;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .match-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .main-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .map-section {
+        position: static;
+      }
+      
+      #map {
+        height: 300px;
+      }
+      
+      .filter-card {
+        padding: 1.5rem;
+      }
+      
+      .match-card {
+        padding: 1rem;
+      }
+      
+      .match-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      
+      .match-name {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="text-primary mb-3">Top Roommate Matches</h2>
+<div class="hero-section">
+  <div class="container-custom">
+    <div class="text-center">
+      <h1 class="hero-title">
+        <i class="fas fa-users"></i> Find Your Perfect Roommate
+      </h1>
+      <p class="hero-subtitle">Discover compatible roommates in your area with our smart matching system</p>
+    </div>
+  </div>
+</div>
 
-  <!-- 🔍 Filter Form -->
-  <form method="get" class="row mb-4">
-    <div class="col-md-3">
-      <input type="text" name="city" class="form-control" placeholder="City" value="{{ request.GET.city }}">
-    </div>
-    <div class="col-md-3">
-      <select name="gender" class="form-control">
-        <option value="">Any Gender</option>
-        <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
-        <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <input type="number" name="budget" class="form-control" placeholder="Max Budget" value="{{ request.GET.budget }}">
-    </div>
-    <div class="col-md-3">
-      <button type="submit" class="btn btn-primary w-100">Apply</button>
-    </div>
-  </form>
-
-  <!-- 🎯 Match List -->
-  <div class="list-group mb-5">
-    {% for match, score in matches %}
-    <div class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <strong>{{ match.username }}</strong>
-          {% if match.profile.last_seen|timeuntil:"now" < "5 minutes" %}
-            <span class="badge bg-success ms-2">Online</span>
-          {% else %}
-            <span class="badge bg-secondary ms-2">Offline</span>
-          {% endif %}
-          <br>
-          <small>Score: {{ score }}%</small><br>
-
-          {% with rating=match_ratings|get_item:match.id %}
-            <small>Rating:</small>
-            {% for i in "12345" %}
-              {% if forloop.counter <= rating %}
-                ⭐
-              {% else %}
-                ☆
-              {% endif %}
-            {% endfor %}
-            <small>({{ rating|floatformat:1 }})</small>
-          {% endwith %}
-        </div>
-        <a href="{% url 'chat' match.id %}" class="btn btn-outline-primary btn-sm">Chat</a>
-    </div>
-    {% empty %}
-      <p>No matches found yet.</p>
-    {% endfor %}
+<div class="container-custom">
+  <!-- 🔍 Enhanced Filter Form -->
+  <div class="filter-card">
+    <h3 class="filter-title">
+      <i class="fas fa-filter"></i> Filter Your Matches
+    </h3>
+    <form method="get" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label text-muted">
+          <i class="fas fa-map-marker-alt"></i> City
+        </label>
+        <input type="text" name="city" class="form-control modern-input" placeholder="Enter city name" value="{{ request.GET.city }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-muted">
+          <i class="fas fa-venus-mars"></i> Gender Preference
+        </label>
+        <select name="gender" class="form-select modern-select">
+          <option value="">Any Gender</option>
+          <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+          <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-muted">
+          <i class="fas fa-dollar-sign"></i> Max Budget
+        </label>
+        <input type="number" name="budget" class="form-control modern-input" placeholder="Budget range" value="{{ request.GET.budget }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label text-muted">&nbsp;</label>
+        <button type="submit" class="btn filter-btn w-100">
+          <i class="fas fa-search"></i> Find Matches
+        </button>
+      </div>
+    </form>
   </div>
 
-  <!-- 🗺 Map Section -->
-  <h3 class="mt-5">Map of Matches</h3>
-  <div id="map" style="height: 400px;" class="rounded shadow mb-4"></div>
+  <!-- Main Content: Map Left, Matches Right -->
+  <div class="main-content">
+    <!-- Left Column: Map -->
+    <div class="map-column">
+      <div class="map-section">
+        <h3 class="map-title">
+          <i class="fas fa-map"></i> Roommate Locations
+        </h3>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- Right Column: Matches -->
+    <div class="matches-column">
+      <div class="matches-section">
+        {% for match, score in matches %}
+        <div class="match-card">
+          <div class="d-flex align-items-center">
+            <div class="match-avatar">
+              {{ match.username|first|upper }}
+            </div>
+            <div class="match-info">
+              <div class="match-name">
+                {{ match.username }}
+                {% if match.profile.last_seen|timeuntil:"now" < "5 minutes" %}
+                  <span class="status-badge online-badge">
+                    <i class="fas fa-circle"></i> Online
+                  </span>
+                {% else %}
+                  <span class="status-badge offline-badge">
+                    <i class="far fa-circle"></i> Offline
+                  </span>
+                {% endif %}
+              </div>
+              
+              <div class="match-score">
+                <i class="fas fa-percentage"></i> {{ score }}% Match
+              </div>
+
+              {% with rating=match_ratings|get_item:match.id %}
+                <div class="star-rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= rating %}
+                      <i class="fas fa-star"></i>
+                    {% else %}
+                      <i class="fas fa-star empty"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="ms-1 text-muted">({{ rating|floatformat:1 }})</span>
+                </div>
+              {% endwith %}
+
+              <div class="match-meta">
+                <span><i class="fas fa-clock"></i> Last seen {{ match.profile.last_seen|timesince }} ago</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ match.profile.city|default:"Location not specified" }}</span>
+              </div>
+            </div>
+            <div class="ms-3">
+              <a href="{% url 'chat' match.id %}" class="chat-btn">
+                <i class="fas fa-comment"></i> Chat Now
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+          <div class="no-matches">
+            <i class="fas fa-search"></i>
+            <h4>No matches found</h4>
+            <p>Try adjusting your filters to find more compatible roommates in your area.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const defaultLat = 22.5726;
-  const defaultLon = 88.3639;
+  const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=";
 
-  const userLat = parseFloat("{{ user_lat|default:22.5726 }}") || defaultLat;
-  const userLon = parseFloat("{{ user_lon|default:88.3639 }}") || defaultLon;
+  let userMarker = null;
+  let routeLines = [];
 
-  const map = L.map('map').setView([userLat, userLon], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-  }).addTo(map);
+  async function drawRouteToMatches(userLat, userLon, matchCoords, map) {
+    // Clear existing routes
+    routeLines.forEach(line => map.removeLayer(line));
+    routeLines = [];
 
-  const bounds = [];
-
-  {% for match in match_coords %}
-    {% if match.lat and match.lon %}
-      let lat_{{ forloop.counter }} = {{ match.lat }};
-      let lon_{{ forloop.counter }} = {{ match.lon }};
-      let popupContent_{{ forloop.counter }} = `
-        <div class="text-center" style="min-width:180px;">
-          {% if match.profile_pic %}
-            <img src="{{ match.profile_pic }}" class="rounded-circle mb-2" width="70" height="70"><br>
-          {% endif %}
-          <strong>{{ match.user.username }}</strong><br>
-          <small>{{ match.city }}</small><br>
-          <small>Score: {{ match.score }}%</small><br>
-          <a href="{% url 'chat' match.user.id %}" class="btn btn-sm btn-outline-primary mt-2">Chat</a>
+    // Add loading indicator
+    const loadingToast = document.createElement('div');
+    loadingToast.className = 'toast-container position-fixed top-0 end-0 p-3';
+    loadingToast.innerHTML = `
+      <div class="toast show" role="alert">
+        <div class="toast-body">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Calculating routes to matches...
         </div>
-      `;
+      </div>
+    `;
+    document.body.appendChild(loadingToast);
 
-      L.marker([lat_{{ forloop.counter }}, lon_{{ forloop.counter }}])
-        .addTo(map)
-        .bindPopup(popupContent_{{ forloop.counter }});
-      
-      bounds.push([lat_{{ forloop.counter }}, lon_{{ forloop.counter }}]);
+    for (const coord of matchCoords) {
+      try {
+        const url = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            coordinates: [
+              [userLon, userLat],
+              [coord.lon, coord.lat]
+            ]
+          })
+        });
 
-      // 🛣 Draw road route using OpenRouteService (replace API key)
-      axios.post('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
-        coordinates: [[userLon, userLat], [lon_{{ forloop.counter }}, lat_{{ forloop.counter }}]]
-      }, {
-        headers: {
-          'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=',
-          'Content-Type': 'application/json'
-        }
-      }).then(response => {
-        L.geoJSON(response.data, {
-          style: { color: 'red', weight: 3 }
+        const data = await response.json();
+        const routeCoords = data.features[0].geometry.coordinates.map(pair => [pair[1], pair[0]]);
+        
+        const polyline = L.polyline(routeCoords, {
+          color: '#667eea',
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '5, 10'
         }).addTo(map);
-      }).catch(err => {
-        console.warn("Route error:", err);
-      });
-    {% endif %}
-  {% endfor %}
 
-  // Add user's own location marker
-  L.marker([userLat, userLon], {
-    icon: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-    })
-  }).addTo(map).bindPopup(`<strong>You are here</strong><br><small>(Your location)</small>`);
+        routeLines.push(polyline);
+      } catch (err) {
+        console.error(`❌ Route error for ${coord.name}:`, err);
+      }
+    }
 
-  if (bounds.length > 0) {
-    map.fitBounds(bounds);
-    setTimeout(() => map.invalidateSize(), 400);
+    // Remove loading indicator
+    setTimeout(() => {
+      document.body.removeChild(loadingToast);
+    }, 2000);
   }
-});
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const defaultLat = 22.5726;
+    const defaultLon = 88.3639;
+
+    // Initialize map with custom styling
+    const map = L.map('map', {
+      zoomControl: false
+    }).setView([defaultLat, defaultLon], 5);
+
+    // Add custom zoom control
+    L.control.zoom({
+      position: 'topright'
+    }).addTo(map);
+
+    // Custom tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    const matchCoords = [
+      {% for match in match_coords %}
+        { lat: {{ match.lat }}, lon: {{ match.lon }}, name: "{{ match.user.username }}" },
+      {% endfor %}
+    ];
+
+    // Add match markers with custom styling
+    matchCoords.forEach(coord => {
+      const customIcon = L.divIcon({
+        html: `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">${coord.name.charAt(0).toUpperCase()}</div>`,
+        className: 'custom-marker',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
+
+      L.marker([coord.lat, coord.lon], { icon: customIcon })
+        .addTo(map)
+        .bindPopup(`
+          <div style="text-align: center; padding: 10px;">
+            <strong style="color: #4a5568;">${coord.name}</strong><br>
+            <small style="color: #718096;">Potential Roommate</small>
+          </div>
+        `);
+    });
+
+    // Get user location with enhanced UX
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async function (position) {
+        const userLat = position.coords.latitude;
+        const userLon = position.coords.longitude;
+
+        // Custom user marker
+        const userIcon = L.divIcon({
+          html: `<div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4); border: 3px solid white;"><i class="fas fa-user"></i></div>`,
+          className: 'user-marker',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        });
+
+        userMarker = L.marker([userLat, userLon], { icon: userIcon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="text-align: center; padding: 10px;">
+              <strong style="color: #4a5568;">Your Location</strong><br>
+              <small style="color: #718096;">You are here</small>
+            </div>
+          `);
+
+        // Fit bounds to show all markers
+        const allPoints = matchCoords.map(coord => [coord.lat, coord.lon]);
+        allPoints.push([userLat, userLon]);
+        if (allPoints.length > 1) {
+          map.fitBounds(allPoints, { padding: [20, 20] });
+        }
+
+        // Draw routes
+        await drawRouteToMatches(userLat, userLon, matchCoords, map);
+      }, function (error) {
+        console.error("❌ Geolocation error:", error);
+        // Show user-friendly error message
+        const errorToast = document.createElement('div');
+        errorToast.className = 'toast-container position-fixed top-0 end-0 p-3';
+        errorToast.innerHTML = `
+          <div class="toast show" role="alert">
+            <div class="toast-body bg-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Unable to get your location. Please enable location services.
+            </div>
+          </div>
+        `;
+        document.body.appendChild(errorToast);
+        setTimeout(() => {
+          if (document.body.contains(errorToast)) {
+            document.body.removeChild(errorToast);
+          }
+        }, 5000);
+      });
+    } else {
+      console.error("Geolocation not supported");
+    }
+  });
+
+  // Add smooth scrolling for better UX
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
 </script>
 {% endblock %}
