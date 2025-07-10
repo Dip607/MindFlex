@@ -304,7 +304,7 @@
     <div class="profile-card">
       <div class="profile-avatar-section">
         {% if profile.profile_pic %}
-          <img src="{{ profile.profile_pic.url }}" alt="{{ profile.user.username }}" class="profile-avatar">
+          <img src="{{ profile.profile_pic.url }}" alt="Profile Pic" class="profile-avatar">
         {% else %}
           <div class="avatar-placeholder">
             {{ profile.user.username|first|upper }}

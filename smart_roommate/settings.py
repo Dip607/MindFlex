@@ -13,22 +13,44 @@ SECRET_KEY = env.str("django-insecure-)51m3mem$rlg4iydv)!2xjt!i9a7%wf_#3*+v1=6v2
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = ['rommieai.onrender.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://rommieai.onrender.com']
+<<<<<<< HEAD
+=======
+
+>>>>>>> d2af0cd (check setting)
 # Static & Media
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+import os
+
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+<<<<<<< HEAD
+=======
 
+>>>>>>> d2af0cd (check setting)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 # Login / Logout
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+# Media storage
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Cloudinary config
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dmmrdoxrv',
+    'API_KEY': '738519275783561',
+    'API_SECRET': 'u7Tn828zjmij3bIjjhSHfSO7NVI'
+}
+
+MEDIA_URL = 'https://res.cloudinary.com/dmmrdoxrv/'
 
 # Installed apps
 INSTALLED_APPS = [
     'core',
+    'cloudinary', 
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -134,8 +134,7 @@ def edit_profile_view(request):
         form = ProfileForm(instance=profile)
     return render(request, 'core/edit_profile.html', {'form': form})
 
-from django.db.models import Avg
-from .models import Feedback  # Assuming you have a Feedback model
+
 from geopy.geocoders import Nominatim
 
 def geocode_city(city):

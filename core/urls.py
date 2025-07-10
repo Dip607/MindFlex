@@ -5,7 +5,8 @@ from .views import custom_logout_view
 from .views import chat_view
 from .views import all_users_view
 from .views import profile_detail_view
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('', home, name='home'),
     path('signup/', signup_view, name='signup'),
@@ -18,3 +19,5 @@ urlpatterns = [
     
     path('profile/<int:user_id>/', profile_detail_view, name='profile-detail'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
