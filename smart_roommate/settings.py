@@ -12,12 +12,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.str("django-insecure-)51m3mem$rlg4iydv)!2xjt!i9a7%wf_#3*+v1=6v288mt&hh-", default='insecure-secret')  # or hardcoded for testing
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = ['rommieai.onrender.com', 'localhost', '127.0.0.1']
-
+CSRF_TRUSTED_ORIGINS = ['https://rommieai.onrender.com']
 # Static & Media
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
