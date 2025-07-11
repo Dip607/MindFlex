@@ -8,8 +8,7 @@ class Message(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return f"{self.sender.username} → {self.receiver.username}"
+   
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(max_length=10)

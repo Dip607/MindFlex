@@ -11,60 +11,86 @@
       --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
       --hover-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      --border-radius-sm: 12px;
+      --border-radius-md: 16px;
+      --border-radius-lg: 20px;
+      --border-radius-xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
 
     .hero-section {
       background: var(--primary-gradient);
       color: white;
-      padding: 3rem 0;
+      padding: 4rem 0 3rem;
       margin-bottom: 2rem;
-      border-radius: 0 0 30px 30px;
+      border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
       box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
     }
 
     .hero-title {
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
       font-weight: 700;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
       margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-subtitle {
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
       opacity: 0.9;
       font-weight: 300;
+      position: relative;
+      z-index: 1;
     }
 
-    .main-content {
-      display: flex;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .map-column {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .matches-column {
-      flex: 1;
-      min-width: 0;
+    .container-custom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      width: 100%;
     }
 
     .filter-card {
       background: white;
-      border-radius: 20px;
+      border-radius: var(--border-radius-lg);
       padding: 2rem;
       box-shadow: var(--card-shadow);
       border: none;
       margin-bottom: 2rem;
       width: 100%;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     .filter-title {
@@ -74,59 +100,123 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      font-size: clamp(1.1rem, 2vw, 1.25rem);
     }
 
-    .modern-input {
+    .form-label {
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .modern-input, .modern-select {
       border: 2px solid #e2e8f0;
-      border-radius: 15px;
-      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius-md);
+      padding: 0.875rem 1.25rem;
       font-size: 1rem;
       transition: all 0.3s ease;
       background: #f8fafc;
+      width: 100%;
+      min-height: 48px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
     }
 
-    .modern-input:focus {
+    .modern-input:focus, .modern-select:focus {
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
       background: white;
+      outline: none;
     }
 
     .modern-select {
-      border: 2px solid #e2e8f0;
-      border-radius: 15px;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #f8fafc;
       cursor: pointer;
-    }
-
-    .modern-select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      background: white;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
     }
 
     .filter-btn {
       background: var(--primary-gradient);
       border: none;
-      border-radius: 15px;
-      padding: 0.75rem 2rem;
+      border-radius: var(--border-radius-md);
+      padding: 0.875rem 2rem;
       font-weight: 600;
       color: white;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    .filter-btn:hover {
+    .filter-btn:hover, .filter-btn:focus {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
       color: white;
+      outline: none;
+    }
+
+    .filter-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .map-section {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .map-title {
+      color: #4a5568;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.1rem, 2vw, 1.25rem);
+    }
+
+    #map {
+      height: 500px;
+      border-radius: var(--border-radius-md);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
     }
 
     .match-card {
       background: white;
-      border-radius: 20px;
+      border-radius: var(--border-radius-lg);
       padding: 1.5rem;
       margin-bottom: 1rem;
       box-shadow: var(--card-shadow);
@@ -134,6 +224,8 @@
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     .match-card:hover {
@@ -163,22 +255,99 @@
       font-size: 1.5rem;
       font-weight: bold;
       margin-right: 1rem;
+      flex-shrink: 0;
     }
 
     .match-info {
       flex: 1;
+      min-width: 0;
     }
 
     .match-name {
-      font-size: 1.25rem;
+      font-size: clamp(1.1rem, 2vw, 1.25rem);
       font-weight: 600;
       color: #2d3748;
       margin-bottom: 0.5rem;
+      word-wrap: break-word;
+    }
+
+    .match-score {
+      background: var(--secondary-gradient);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius-lg);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .match-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      color: #718096;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .match-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .chat-btn {
+      background: var(--success-gradient);
+      border: none;
+      border-radius: var(--border-radius-md);
+      padding: 0.75rem 1.5rem;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .chat-btn:hover, .chat-btn:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+      color: white;
+      text-decoration: none;
+      outline: none;
+    }
+
+    .chat-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    .no-matches {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #718096;
+      font-size: 1.1rem;
+    }
+
+    .no-matches i {
+      font-size: 3rem;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
     }
 
     .status-badge {
       padding: 0.25rem 0.75rem;
-      border-radius: 20px;
+      border-radius: var(--border-radius-lg);
       font-size: 0.75rem;
       font-weight: 600;
       margin-left: 0.5rem;
@@ -201,125 +370,103 @@
       100% { opacity: 1; }
     }
 
-    .match-score {
-      background: var(--secondary-gradient);
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      display: inline-block;
-    }
-
-    .star-rating {
-      color: #fbbf24;
-      margin: 0.5rem 0;
-    }
-
-    .star-rating .empty {
-      color: #e5e7eb;
-    }
-
-    .chat-btn {
-      background: var(--success-gradient);
-      border: none;
-      border-radius: 15px;
-      padding: 0.75rem 1.5rem;
-      color: white;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .chat-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
-      color: white;
-      text-decoration: none;
-    }
-
-    .map-section {
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: var(--card-shadow);
-      height: fit-content;
-      position: sticky;
-      top: 2rem;
-    }
-
-    .map-title {
-      color: #4a5568;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    #map {
-      height: 500px;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .no-matches {
-      text-align: center;
-      padding: 3rem;
-      color: #718096;
-      font-size: 1.1rem;
-    }
-
-    .no-matches i {
-      font-size: 3rem;
-      color: #e2e8f0;
-      margin-bottom: 1rem;
-    }
-
-    .container-custom {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    .match-meta {
-      display: flex;
-      gap: 1rem;
-      color: #718096;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
-    .match-meta span {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    @media (max-width: 768px) {
-      .hero-title {
-        font-size: 2rem;
+    /* Responsive Design */
+    
+    /* Large Tablets */
+    @media (max-width: 1024px) {
+      .container-custom {
+        padding: 0 1.5rem;
       }
       
       .main-content {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      
-      .map-section {
-        position: static;
-      }
-      
-      #map {
-        height: 300px;
+        gap: 1.5rem;
       }
       
       .filter-card {
         padding: 1.5rem;
+      }
+      
+      .map-section {
+        padding: 1.5rem;
+      }
+      
+      #map {
+        height: 400px;
+      }
+    }
+
+    /* Standard Tablets */
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 3rem 0 2rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+      
+      .map-section {
+        position: static;
+        order: 2;
+      }
+      
+      .matches-column {
+        order: 1;
+      }
+      
+      #map {
+        height: 350px;
+      }
+      
+      .filter-card {
+        padding: 1.5rem;
+      }
+      
+      .match-card {
+        padding: 1.25rem;
+      }
+      
+      .match-avatar {
+        width: 55px;
+        height: 55px;
+        font-size: 1.3rem;
+      }
+      
+      .filter-btn {
+        padding: 1rem 2rem;
+      }
+      
+      .chat-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Small Tablets/Large Phones */
+    @media (max-width: 640px) {
+      .container-custom {
+        padding: 0 1rem;
+      }
+      
+      .hero-section {
+        padding: 2.5rem 0 1.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      .filter-card {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .map-section {
+        padding: 1.25rem;
+      }
+      
+      #map {
+        height: 300px;
       }
       
       .match-card {
@@ -330,10 +477,210 @@
         width: 50px;
         height: 50px;
         font-size: 1.2rem;
+        margin-right: 0.75rem;
       }
       
-      .match-name {
+      .match-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 1rem;
+      }
+      
+      .d-flex.align-items-center .match-info {
+        order: 1;
+      }
+      
+      .d-flex.align-items-center .ms-3 {
+        order: 2;
+        margin-left: 0 !important;
+      }
+      
+      .d-flex.align-items-center .match-avatar {
+        order: 0;
+        align-self: flex-start;
+        margin-right: 0;
+      }
+      
+      .chat-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Standard Mobile Phones */
+    @media (max-width: 480px) {
+      .hero-section {
+        padding: 2rem 0 1rem;
+      }
+      
+      .filter-card {
+        padding: 1rem;
+        border-radius: var(--border-radius-md);
+      }
+      
+      .map-section {
+        padding: 1rem;
+        border-radius: var(--border-radius-md);
+      }
+      
+      .match-card {
+        padding: 1rem;
+        border-radius: var(--border-radius-md);
+      }
+      
+      #map {
+        height: 250px;
+      }
+      
+      .modern-input, .modern-select, .filter-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+      }
+      
+      .match-avatar {
+        width: 45px;
+        height: 45px;
         font-size: 1.1rem;
+      }
+      
+      .no-matches {
+        padding: 2rem 1rem;
+      }
+      
+      .no-matches i {
+        font-size: 2.5rem;
+      }
+      
+      /* Stack form elements vertically on mobile */
+      .row.g-3 {
+        --bs-gutter-x: 0;
+        --bs-gutter-y: 1rem;
+      }
+      
+      .row.g-3 > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        margin-bottom: 1rem;
+      }
+      
+      .row.g-3 > *:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    /* Extra Small Mobile Phones */
+    @media (max-width: 360px) {
+      .container-custom {
+        padding: 0 0.75rem;
+      }
+      
+      .hero-section {
+        padding: 1.5rem 0 1rem;
+      }
+      
+      .filter-card, .map-section, .match-card {
+        padding: 0.75rem;
+      }
+      
+      .modern-input, .modern-select, .filter-btn {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      .match-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+      
+      .chat-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.85rem;
+      }
+      
+      #map {
+        height: 200px;
+      }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+      .filter-btn, .chat-btn {
+        min-height: 48px;
+        padding: 0.875rem 1.5rem;
+      }
+      
+      .modern-input, .modern-select {
+        min-height: 48px;
+        padding: 0.875rem 1.25rem;
+      }
+      
+      .match-card:hover {
+        transform: none;
+      }
+      
+      .filter-btn:hover, .chat-btn:hover {
+        transform: none;
+      }
+    }
+
+    /* High DPI displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .hero-section {
+        background-attachment: fixed;
+      }
+    }
+
+    /* Landscape orientation on mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .hero-section {
+        padding: 1.5rem 0 1rem;
+      }
+      
+      #map {
+        height: 250px;
+      }
+      
+      .main-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      
+      .matches-column {
+        order: 1;
+      }
+      
+      .map-section {
+        order: 2;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      .hero-section {
+        background: #667eea !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      .filter-card, .map-section {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+      
+      .chat-btn {
+        display: none !important;
+      }
+      
+      #map {
+        display: none !important;
       }
     }
   </style>
@@ -352,101 +699,101 @@
 </div>
 
 <div class="container-custom">
-  <!-- 🔍 Enhanced Filter Form -->
+  <!-- Enhanced Filter Form -->
   <div class="filter-card">
     <h3 class="filter-title">
       <i class="fas fa-filter"></i> Filter Your Matches
     </h3>
     <form method="get" class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label text-muted">
+      <div class="col-md-3 col-sm-6">
+        <label class="form-label">
           <i class="fas fa-map-marker-alt"></i> City
         </label>
-        <input type="text" name="city" class="form-control modern-input" placeholder="Enter city name" value="{{ request.GET.city }}">
+        <input type="text" name="city" class="form-control modern-input" placeholder="Enter city name" value="{{ request.GET.city }}" autocomplete="address-level2">
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-muted">
+      <div class="col-md-3 col-sm-6">
+        <label class="form-label">
           <i class="fas fa-venus-mars"></i> Gender Preference
         </label>
         <select name="gender" class="form-select modern-select">
           <option value="">Any Gender</option>
           <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
           <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+          <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
         </select>
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-muted">
+      <div class="col-md-3 col-sm-6">
+        <label class="form-label">
           <i class="fas fa-dollar-sign"></i> Max Budget
         </label>
-        <input type="number" name="budget" class="form-control modern-input" placeholder="Budget range" value="{{ request.GET.budget }}">
+        <input type="number" name="budget" class="form-control modern-input" placeholder="Budget range" value="{{ request.GET.budget }}" min="0" step="50">
       </div>
-      <div class="col-md-3">
-        <label class="form-label text-muted">&nbsp;</label>
-        <button type="submit" class="btn filter-btn w-100">
+      <div class="col-md-3 col-sm-6">
+        <label class="form-label d-none d-sm-block">&nbsp;</label>
+        <button type="submit" class="btn filter-btn">
           <i class="fas fa-search"></i> Find Matches
         </button>
       </div>
     </form>
   </div>
 
-  <!-- Main Content: Map Left, Matches Right -->
+  <!-- Main Content: Map and Matches -->
   <div class="main-content">
-    <!-- Left Column: Map -->
+    <!-- Map Column -->
     <div class="map-column">
       <div class="map-section">
         <h3 class="map-title">
           <i class="fas fa-map"></i> Roommate Locations
         </h3>
-        <div id="map"></div>
+        <div id="map" role="img" aria-label="Interactive map showing roommate locations"></div>
       </div>
     </div>
 
-    <!-- Right Column: Matches -->
-    <!-- Right Column: Matches -->
-<div class="matches-column">
-  <div class="matches-section">
-    {% for match, score in matches %}
-    <div class="match-card">
-      <div class="d-flex align-items-center">
-        <div class="match-avatar">
-          {{ match.username|first|upper }}
-        </div>
-        <div class="match-info">
-          <div class="match-name">
-            {{ match.username }}
-            {% with last_seen=match.profile.last_seen %}
+    <!-- Matches Column -->
+    <div class="matches-column">
+      <div class="matches-section">
+        {% for match, score in matches %}
+        <div class="match-card">
+          <div class="d-flex align-items-center">
+            <div class="match-avatar" aria-label="Avatar for {{ match.username }}">
+              {{ match.username|first|upper }}
+            </div>
+            <div class="match-info">
+              <div class="match-name">
+                {{ match.username }}
+                {% with last_seen=match.profile.last_seen %}
+                  
+                {% endwith %}
+              </div>
               
-            {% endwith %}
-          </div>
-          
-          <div class="match-score">
-            <i class="fas fa-percentage"></i> {{ score }}% Match
-          </div>
+              <div class="match-score">
+                <i class="fas fa-percentage"></i> {{ score }}% Match
+              </div>
 
-
-          <div class="match-meta">
-            
-            <span><i class="fas fa-map-marker-alt"></i> {{ match.profile.city|default:"Location not specified" }}</span>
+              <div class="match-meta">
+                <span><i class="fas fa-map-marker-alt"></i> {{ match.profile.city|default:"Location not specified" }}</span>
+                {% if match.profile.budget %}
+                  <span><i class="fas fa-dollar-sign"></i> ${{ match.profile.budget }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="ms-3">
+              <a href="{% url 'chat' match.id %}" class="chat-btn" role="button" aria-label="Start chat with {{ match.username }}">
+                <i class="fas fa-comment"></i> Chat Now
+              </a>
+            </div>
           </div>
         </div>
-        <div class="ms-3">
-          <a href="{% url 'chat' match.id %}" class="chat-btn">
-            <i class="fas fa-comment"></i> Chat Now
-          </a>
-        </div>
+        {% empty %}
+          <div class="no-matches">
+            <i class="fas fa-search"></i>
+            <h4>No matches found</h4>
+            <p>Try adjusting your filters to find more compatible roommates in your area.</p>
+          </div>
+        {% endfor %}
       </div>
     </div>
-    {% empty %}
-      <div class="no-matches">
-        <i class="fas fa-search"></i>
-        <h4>No matches found</h4>
-        <p>Try adjusting your filters to find more compatible roommates in your area.</p>
-      </div>
-    {% endfor %}
   </div>
-</div>
-
-</div>
 </div>
 {% endblock %}
 
@@ -456,14 +803,33 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=";  // Replace with your real key
+  const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRlOWIwM2ZjZDcxZjRlYTU5OGQ5Yzc2OTQzZmRiMTY2IiwiaCI6Im11cm11cjY0In0=";
   let userMarker = null;
   let routeLines = [];
+  let map = null;
+
+  // Responsive map configuration
+  function getMapConfig() {
+    const width = window.innerWidth;
+    return {
+      isMobile: width <= 768,
+      isTablet: width <= 1024 && width > 768,
+      markerSize: width <= 480 ? 20 : width <= 768 ? 24 : 30,
+      userMarkerSize: width <= 480 ? 28 : width <= 768 ? 32 : 40,
+      fontSize: width <= 480 ? '0.7rem' : width <= 768 ? '0.75rem' : '1rem',
+      userFontSize: width <= 480 ? '0.8rem' : width <= 768 ? '1rem' : '1.25rem',
+      maxZoom: width <= 768 ? 16 : 18,
+      padding: width <= 480 ? [5, 5] : width <= 768 ? [10, 10] : [40, 40]
+    };
+  }
 
   async function drawRouteToMatches(userLat, userLon, matchCoords, map) {
+    // Clear existing routes
     routeLines.forEach(line => map.removeLayer(line));
     routeLines = [];
 
+    const config = getMapConfig();
+    
     for (const coord of matchCoords) {
       try {
         const url = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
@@ -481,37 +847,58 @@
           })
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         const routeCoords = data.features[0].geometry.coordinates.map(pair => [pair[1], pair[0]]);
 
         const polyline = L.polyline(routeCoords, {
-          color: '#ff4d4d',   // Red line
-          weight: 4,
+          color: config.isMobile ? '#4facfe' : '#ff4d4d',
+          weight: config.isMobile ? 3 : 4,
           opacity: 0.8,
-          dashArray: '5, 10'
+          dashArray: config.isMobile ? '3, 8' : '5, 10'
         }).addTo(map);
 
         routeLines.push(polyline);
 
       } catch (err) {
-        console.error(`❌ Route error for ${coord.name}:`, err);
+        console.error(`Route error for ${coord.name}:`, err);
       }
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function initializeMap() {
     const defaultLat = 22.5726;
     const defaultLon = 88.3639;
-    const isMobile = window.innerWidth <= 768;
+    const config = getMapConfig();
 
-    const map = L.map('map', { zoomControl: false }).setView([defaultLat, defaultLon], 5);
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    // Initialize map with responsive settings
+    map = L.map('map', { 
+      zoomControl: false,
+      touchZoom: true,
+      scrollWheelZoom: !config.isMobile,
+      doubleClickZoom: true,
+      boxZoom: !config.isMobile,
+      keyboard: !config.isMobile,
+      dragging: true,
+      tap: config.isMobile
+    }).setView([defaultLat, defaultLon], config.isMobile ? 4 : 5);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 18
+    // Add zoom control with responsive positioning
+    L.control.zoom({ 
+      position: config.isMobile ? 'bottomright' : 'topright' 
     }).addTo(map);
 
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: config.maxZoom,
+      minZoom: 2
+    }).addTo(map);
+
+    // Add match markers
     const matchCoords = [
       {% for match in match_coords %}
         { lat: {{ match.lat }}, lon: {{ match.lon }}, name: "{{ match.user.username }}" },
@@ -519,88 +906,150 @@
     ];
 
     matchCoords.forEach(coord => {
-      const markerSize = isMobile ? 24 : 30;
-      const fontSize = isMobile ? '0.75rem' : '1rem';
-
       const customIcon = L.divIcon({
         html: `<div style="
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          width: ${markerSize}px;
-          height: ${markerSize}px;
+          width: ${config.markerSize}px;
+          height: ${config.markerSize}px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
           font-weight: bold;
-          font-size: ${fontSize};
+          font-size: ${config.fontSize};
           box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+          border: 2px solid white;
         ">${coord.name.charAt(0).toUpperCase()}</div>`,
         className: 'custom-marker',
-        iconSize: [markerSize, markerSize],
-        iconAnchor: [markerSize / 2, markerSize / 2]
+        iconSize: [config.markerSize, config.markerSize],
+        iconAnchor: [config.markerSize / 2, config.markerSize / 2]
       });
 
       L.marker([coord.lat, coord.lon], { icon: customIcon })
         .addTo(map)
         .bindPopup(`
-          <div style="text-align: center; padding: 10px;">
-            <strong style="color: #4a5568;">${coord.name}</strong><br>
-            <small style="color: #718096;">Potential Roommate</small>
+          <div style="text-align: center; padding: 10px; min-width: 120px;">
+            <strong style="color: #4a5568; font-size: 1.1rem;">${coord.name}</strong><br>
+            <small style="color: #718096; margin-top: 5px; display: block;">Potential Roommate</small>
           </div>
-        `);
+        `, {
+          maxWidth: 200,
+          className: 'custom-popup'
+        });
     });
 
+    // Get user location
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async function (position) {
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
+      navigator.geolocation.getCurrentPosition(
+        async function (position) {
+          const userLat = position.coords.latitude;
+          const userLon = position.coords.longitude;
 
-        const userSize = isMobile ? 32 : 40;
+          const userIcon = L.divIcon({
+            html: `<div style="
+              background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+              width: ${config.userMarkerSize}px;
+              height: ${config.userMarkerSize}px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: ${config.userFontSize};
+              box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
+              border: 3px solid white;
+            "><i class="fas fa-user"></i></div>`,
+            className: 'user-marker',
+            iconSize: [config.userMarkerSize, config.userMarkerSize],
+            iconAnchor: [config.userMarkerSize / 2, config.userMarkerSize / 2]
+          });
 
-        const userIcon = L.divIcon({
-          html: `<div style="
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            width: ${userSize}px;
-            height: ${userSize}px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: ${isMobile ? '1rem' : '1.25rem'};
-            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
-            border: 3px solid white;
-          "><i class="fas fa-user"></i></div>`,
-          className: 'user-marker',
-          iconSize: [userSize, userSize],
-          iconAnchor: [userSize / 2, userSize / 2]
-        });
+          userMarker = L.marker([userLat, userLon], { icon: userIcon })
+            .addTo(map)
+            .bindPopup(`
+              <div style="text-align: center; padding: 10px; min-width: 120px;">
+                <strong style="color: #4a5568; font-size: 1.1rem;">Your Location</strong><br>
+                <small style="color: #718096; margin-top: 5px; display: block;">You are here</small>
+              </div>
+            `, {
+              maxWidth: 200,
+              className: 'custom-popup'
+            });
 
-        userMarker = L.marker([userLat, userLon], { icon: userIcon })
-          .addTo(map)
-          .bindPopup(`
-            <div style="text-align: center; padding: 10px;">
-              <strong style="color: #4a5568;">Your Location</strong><br>
-              <small style="color: #718096;">You are here</small>
-            </div>
-          `);
+          // Fit map to show all markers
+          const allPoints = matchCoords.map(coord => [coord.lat, coord.lon]);
+          allPoints.push([userLat, userLon]);
 
-        const allPoints = matchCoords.map(coord => [coord.lat, coord.lon]);
-        allPoints.push([userLat, userLon]);
+          if (allPoints.length > 1) {
+            map.fitBounds(allPoints, { padding: config.padding });
+          }
 
-        map.options.maxZoom = isMobile ? 13 : 18;
-        const padding = isMobile ? [10, 10] : [40, 40];
-        map.fitBounds(allPoints, { padding });
-
-        await drawRouteToMatches(userLat, userLon, matchCoords, map);
-      }, function (error) {
-        console.error("❌ Geolocation error:", error);
-      });
+          // Draw routes on non-mobile devices
+          if (!config.isMobile && matchCoords.length > 0) {
+            await drawRouteToMatches(userLat, userLon, matchCoords, map);
+          }
+        },
+        function (error) {
+          console.error("Geolocation error:", error);
+          // Fallback to default location
+          if (matchCoords.length > 0) {
+            const coords = matchCoords.map(coord => [coord.lat, coord.lon]);
+            map.fitBounds(coords, { padding: config.padding });
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      );
     } else {
       console.error("Geolocation not supported");
+      // Fallback for browsers without geolocation
+      if (matchCoords.length > 0) {
+        const coords = matchCoords.map(coord => [coord.lat, coord.lon]);
+        map.fitBounds(coords, { padding: config.padding });
+      }
     }
+  }
+
+  // Handle window resize
+  function handleResize() {
+    if (map) {
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener("DOMContentLoaded", function () {
+    initializeMap();
+    
+    // Handle window resize
+    window.addEventListener('resize', handleResize);
+    
+    // Handle orientation change on mobile
+    window.addEventListener('orientationchange', function() {
+      setTimeout(handleResize, 500);
+    });
   });
+
+  // Touch event optimization for mobile
+  if ('ontouchstart' in window) {
+    document.addEventListener('touchstart', function(){}, true);
+  }
+
+  // Prevent zoom on double tap for better UX
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function (event) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, false);
 </script>
 {% endblock %}
