@@ -987,7 +987,7 @@
           }
 
           // Draw routes on non-mobile devices
-          if (!config.isMobile && matchCoords.length > 0) {
+          if (matchCoords.length > 0) {
             await drawRouteToMatches(userLat, userLon, matchCoords, map);
           }
         },
