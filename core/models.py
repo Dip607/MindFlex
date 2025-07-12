@@ -15,7 +15,7 @@ class Profile(models.Model):
     city = models.CharField(max_length=50)
     tags = models.TextField(blank=True, null=True)
     budget = models.IntegerField(null=True, blank=True)
-    cleanliness = models.IntegerField(null=True, blank=True)
+    cleanliness = models.IntegerField(null=True, blank=True, default="yes")
     sleep_schedule = models.CharField(max_length=20, null=True, blank=True)
     introvert_extrovert = models.CharField(max_length=20, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)

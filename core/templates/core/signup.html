@@ -1,75 +1,332 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<h2>Sign Up</h2>
+<style>
+  /* Modern dark gradient background */
+  .signup-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #1e3c72 100%);
+    padding: 2rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .signup-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    padding: 3rem;
+    width: 100%;
+    max-width: 600px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .signup-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-align: center;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 2rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .form-group input[type="file"] {
+    padding: 0.5rem;
+    border: 2px dashed #e2e8f0;
+    background: #f7fafc;
+    cursor: pointer;
+  }
+  
+  .form-group input[type="file"]:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  }
+  
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+  
+  /* Grid layout for form fields */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .signup-card {
+      padding: 4rem;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .signup-container {
+      padding: 1rem;
+    }
+    
+    .signup-card {
+      padding: 2rem;
+      margin: 1rem 0;
+    }
+    
+    .signup-title {
+      font-size: 2rem;
+    }
+  }
+  
+  /* Custom styling for Django form errors */
+  .errorlist {
+    color: #e53e3e;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .errorlist li {
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Hide Django's default paragraph styling */
+  .django-form p {
+    margin: 0;
+  }
+  
+  /* Loading animation */
+  .loading {
+    position: relative;
+    pointer-events: none;
+  }
+  
+  .loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
 
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-
-  <h4>Account Info</h4>
-  {{ user_form.as_p }}
-
-  <h4>Profile Info</h4>
-
-  <p>
-    {{ profile_form.city.label_tag }}
-    {{ profile_form.city }}
-  </p>
-  <p>
-    {{ profile_form.gender.label_tag }}
-    {{ profile_form.gender }}
-  </p>
-  <p>
-    {{ profile_form.budget.label_tag }}
-    {{ profile_form.budget }}
-  </p>
-  <p>
-    {{ profile_form.cleanliness.label_tag }}
-    {{ profile_form.cleanliness }}
-  </p>
-  <p>
-    {{ profile_form.sleep_schedule.label_tag }}
-    {{ profile_form.sleep_schedule }}
-  </p>
-  <p>
-    {{ profile_form.introvert_extrovert.label_tag }}
-    {{ profile_form.introvert_extrovert }}
-  </p>
-  <p>
-    {{ profile_form.tags.label_tag }}
-    {{ profile_form.tags }}
-  </p>
-  <p>
-    {{ profile_form.bio.label_tag }}
-    {{ profile_form.bio }}
-  </p>
-  <p>
-    {{ profile_form.profile_pic.label_tag }}
-    {{ profile_form.profile_pic }}
-  </p>
-  <p>
-    {{ profile_form.college_id.label_tag }}
-    {{ profile_form.college_id }}
-  </p>
-
-  <!-- 📍 Hidden fields to store location -->
-  <input type="hidden" name="latitude" id="latitude">
-  <input type="hidden" name="longitude" id="longitude">
-
-  <button type="submit" class="btn btn-primary">Sign Up</button>
-</form>
+<div class="signup-container">
+  <div class="signup-card">
+    <h2 class="signup-title">Create Account</h2>
+    
+    <form method="post" enctype="multipart/form-data" id="signupForm">
+      {% csrf_token %}
+      
+      <h4 class="section-title">Account Information</h4>
+      <div class="django-form">
+        {{ user_form.as_p }}
+      </div>
+      
+      <h4 class="section-title">Profile Information</h4>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          {{ profile_form.city.label_tag }}
+          {{ profile_form.city }}
+        </div>
+        
+        <div class="form-group">
+          {{ profile_form.gender.label_tag }}
+          {{ profile_form.gender }}
+        </div>
+        
+        <div class="form-group">
+          {{ profile_form.budget.label_tag }}
+          {{ profile_form.budget }}
+        </div>
+        
+        <div class="form-group">
+          {{ profile_form.cleanliness.label_tag }}
+          {{ profile_form.cleanliness }}
+        </div>
+        
+        <div class="form-group">
+          {{ profile_form.sleep_schedule.label_tag }}
+          {{ profile_form.sleep_schedule }}
+        </div>
+        
+        <div class="form-group">
+          {{ profile_form.introvert_extrovert.label_tag }}
+          {{ profile_form.introvert_extrovert }}
+        </div>
+        
+        <div class="form-group full-width">
+          {{ profile_form.tags.label_tag }}
+          {{ profile_form.tags }}
+        </div>
+        
+        <div class="form-group full-width">
+          {{ profile_form.bio.label_tag }}
+          {{ profile_form.bio }}
+        </div>
+        
+        <div class="form-group full-width">
+          {{ profile_form.profile_pic.label_tag }}
+          {{ profile_form.profile_pic }}
+        </div>
+        
+        <div class="form-group full-width">
+          {{ profile_form.college_id.label_tag }}
+          {{ profile_form.college_id }}
+        </div>
+      </div>
+      
+      <!-- 📍 Hidden fields to store location -->
+      <input type="hidden" name="latitude" id="latitude">
+      <input type="hidden" name="longitude" id="longitude">
+      
+      <button type="submit" class="submit-btn" id="submitBtn">
+        Create My Account
+      </button>
+    </form>
+  </div>
+</div>
 
 <!-- 📍 Geolocation Script -->
 <script>
+  // Enhanced geolocation with better error handling
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function (position) {
       document.getElementById('latitude').value = position.coords.latitude;
       document.getElementById('longitude').value = position.coords.longitude;
+      console.log("Location captured successfully");
     }, function (error) {
       console.log("Geolocation error:", error.message);
+      // Continue without location if user denies or error occurs
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
     });
   } else {
     console.log("Geolocation is not supported by this browser.");
   }
+  
+  // Enhanced form submission with loading state
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.textContent = 'Creating Account...';
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+  });
+  
+  // Auto-resize textarea
+  document.addEventListener('DOMContentLoaded', function() {
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(function(textarea) {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+  });
 </script>
 {% endblock %}
