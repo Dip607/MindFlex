@@ -85,26 +85,39 @@ def signup_view(request):
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
 
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
-            user.save()
+        try:
+            print("POST data received.")
+            print("User form valid:", user_form.is_valid())
+            print("Profile form valid:", profile_form.is_valid())
 
-            profile = profile_form.save(commit=False)
-            profile.user = user
+            if user_form.is_valid() and profile_form.is_valid():
+                user = user_form.save()  # This includes set_password inside the form.save()
 
-            # ✅ Capture coordinates from hidden fields
-            latitude = request.POST.get('latitude')
-            longitude = request.POST.get('longitude')
-            if latitude and longitude:
-                profile.latitude = latitude
-                profile.longitude = longitude
+                profile = profile_form.save(commit=False)
+                profile.user = user
 
-            profile.save()
+                # ✅ Get geolocation coordinates
+                latitude = request.POST.get('latitude')
+                longitude = request.POST.get('longitude')
+                if latitude and longitude:
+                    profile.latitude = latitude
+                    profile.longitude = longitude
 
-            login(request, user)
-            messages.success(request, 'Account created successfully!')
-            return redirect('home')
+                profile.save()
+
+                login(request, user)
+                messages.success(request, 'Account created successfully!')
+                return redirect('home')
+            else:
+                # Print validation errors if any
+                print("User form errors:", user_form.errors)
+                print("Profile form errors:", profile_form.errors)
+
+        except Exception as e:
+            import traceback
+            print("⚠️ Signup Error:", e)
+            traceback.print_exc()
+
     else:
         user_form = UserRegistrationForm()
         profile_form = ProfileForm()
